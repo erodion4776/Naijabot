@@ -7,10 +7,16 @@ import { requestLogger } from './src/api/middleware/requestLogger';
 import { errorHandler } from './src/api/middleware/errorHandler';
 import apiRouter from './src/api/routes/api';
 import { WhatsAppService } from './src/bot/services/WhatsAppService';
+import { AuditLogService } from './src/services/AuditLogService';
+import { AnalyticsService } from './src/services/AnalyticsService';
 
 async function startServer() {
   const app = express();
   
+  // Initialize Core Services
+  new AuditLogService();
+  new AnalyticsService();
+
   // Initialize WhatsApp Bot
   const whatsappService = new WhatsAppService();
   whatsappService.connect().catch(err => logger.error({ err }, 'Failed to connect WhatsApp'));

@@ -1,0 +1,39 @@
+export enum TriggerType {
+  MESSAGE_RECEIVED = 'MESSAGE_RECEIVED',
+  MEMBER_JOINED = 'MEMBER_JOINED',
+  MEMBER_LEFT = 'MEMBER_LEFT',
+  COMMAND_EXECUTED = 'COMMAND_EXECUTED',
+  WARNING_ISSUED = 'WARNING_ISSUED',
+  SCHEDULER_EVENT = 'SCHEDULER_EVENT',
+}
+
+export enum ConditionType {
+  USER_ROLE = 'USER_ROLE',
+  MESSAGE_CONTAINS_TEXT = 'MESSAGE_CONTAINS_TEXT',
+  MESSAGE_CONTAINS_LINK = 'MESSAGE_CONTAINS_LINK',
+  WARNINGS_COUNT = 'WARNINGS_COUNT',
+  TIME_OF_DAY = 'TIME_OF_DAY',
+  PLUGIN_ENABLED = 'PLUGIN_ENABLED',
+}
+
+export enum ActionType {
+  DELETE_MESSAGE = 'DELETE_MESSAGE',
+  WARN_USER = 'WARN_USER',
+  MUTE_USER = 'MUTE_USER',
+  KICK_USER = 'KICK_USER',
+  SEND_MESSAGE = 'SEND_MESSAGE',
+  NOTIFY_ADMINS = 'NOTIFY_ADMINS',
+  EXECUTE_PLUGIN = 'EXECUTE_PLUGIN',
+  EMIT_EVENT = 'EMIT_EVENT',
+}
+
+export interface Rule {
+  id: string;
+  name: string;
+  groupId: string;
+  trigger: TriggerType;
+  conditions: any[]; // JSON
+  actions: any[]; // JSON
+  priority: number;
+  enabled: boolean;
+}

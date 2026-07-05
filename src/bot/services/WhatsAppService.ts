@@ -7,6 +7,8 @@ import {
 import pino from 'pino';
 import { logger } from '../../logger';
 import { EventManager } from '../EventManager';
+import { eventBus } from '../../events/EventBus';
+import { EventType } from '../../events/types';
 
 export class WhatsAppService {
   private sock: WASocket | null = null;
@@ -30,7 +32,13 @@ export class WhatsAppService {
     this.sock.ev.on('connection.update', (update) => {
       this.eventManager.handleConnectionUpdate(update);
       const { connection, lastDisconnect } = update;
+      
+      if (connection === 'open') {
+        eventBus.emit(EventType.BOT_CONNECTED, { timestamp: new Date() });
+      }
+
       if (connection === 'close') {
+        eventBus.emit(EventType.BOT_DISCONNECTED, { lastDisconnect });
         const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== DisconnectReason.loggedOut;
         if (shouldReconnect) {
           this.connect();

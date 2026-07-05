@@ -1,20 +1,23 @@
-import { WASocket, ConnectionState, AnyMessageContent } from '@whiskeysockets/baileys';
+import { WASocket, ConnectionState, proto } from '@whiskeysockets/baileys';
 import { logger } from '../logger';
 import { CommandRouter } from './CommandRouter';
+import { ModerationEngine } from '../moderation/ModerationEngine';
+import { eventBus } from '../events/EventBus';
+import { EventType } from '../events/types';
 
 export class EventManager {
   private commandRouter: CommandRouter;
+  private moderationEngine: ModerationEngine;
 
   constructor() {
     this.commandRouter = new CommandRouter();
+    this.moderationEngine = new ModerationEngine();
   }
 
   handleConnectionUpdate(update: Partial<ConnectionState>) {
-    const { connection, lastDisconnect } = update;
+    const { connection } = update;
     if (connection === 'close') {
-      const shouldReconnect = (lastDisconnect?.error as any)?.output?.statusCode !== 401;
-      logger.warn('Connection closed. Reconnecting:', shouldReconnect);
-      // Logic for reconnection will be in WhatsAppService
+      logger.warn('Connection closed.');
     } else if (connection === 'open') {
       logger.info('WhatsApp connection opened successfully.');
     }
@@ -25,13 +28,16 @@ export class EventManager {
     const msg = message.messages[0];
     if (msg.key.fromMe) return;
 
-    const remoteJid = msg.key.remoteJid;
+    // Emit Event
+    eventBus.emit(EventType.MESSAGE_RECEIVED, { remoteJid: msg.key.remoteJid, message: msg.message });
+
     const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
 
-    if (!text) return;
+    // Run moderation
+    const shouldProceed = await this.moderationEngine.process(sock, msg);
+    if (!shouldProceed) return;
 
-    const isGroup = remoteJid?.endsWith('@g.us');
-    logger.info({ remoteJid, isGroup, text }, 'Received message');
+    if (!text) return;
 
     if (text.startsWith('/')) {
         await this.commandRouter.handleCommand(sock, msg, text);

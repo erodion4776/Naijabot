@@ -1,0 +1,73 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  whatsappId   String    @unique
+  name         String
+  warningCount Int       @default(0)
+  strikeCount  Int       @default(0)
+  status       String    // CLEAN, WARNED, BANNED
+  warnings     Warning[]
+}
+
+model Group {
+  id          String         @id
+  name        String
+  description String?
+  status      String         // ACTIVE, MUTED, INACTIVE
+  adminCount  Int            @default(0)
+  settings    GroupSettings?
+}
+
+model GroupSettings {
+  id             String  @id @default(uuid())
+  groupId        String  @unique
+  group          Group   @relation(fields: [groupId], references: [id])
+  antiSpam       Boolean @default(true)
+  antiLinks      Boolean @default(true)
+  antiBadWords   Boolean @default(true)
+  antiFlood      Boolean @default(true)
+  welcomeMessage String?
+  goodbyeMessage String?
+  rulesMessage   String?
+}
+
+model Warning {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  groupId   String
+  reason    String
+  timestamp DateTime @default(now())
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  type      String
+  message   String
+  level     String
+}
+
+model Plugin {
+  id      String  @id @default(uuid())
+  name    String  @unique
+  enabled Boolean @default(true)
+}
+
+model Rule {
+  id          String   @id @default(uuid())
+  name        String
+  groupId     String
+  trigger     String
+  conditions  Json
+  actions     Json
+  priority    Int      @default(0)
+  enabled     Boolean  @default(true)
+}

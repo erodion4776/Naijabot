@@ -1,0 +1,6 @@
+{
+  "name": "NaijaBot",
+  "description": "A production-ready WhatsApp Group Management Platform featuring QR login, advanced moderation, custom command parsing, and a full-stack dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

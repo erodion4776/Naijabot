@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: naijabot-platform
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: LOG_LEVEL
+        value: info
+      - key: DATABASE_URL
+        value: file:./dev.db
